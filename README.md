@@ -10,12 +10,12 @@
 
 ---
 
-## 一、交付物与验证结果（本机实际跑出来的结果）
+## 一、交付物与验证结果（实际构建产物）
 
 | 项目 | 结果 |
 |---|---|
 | debug APK | `app\build\outputs\apk\debug\app-debug.apk` |
-| APK 大小 | 14,474,373 字节（约 13.8 MB），生成时间 2026-10-17 |
+| APK 大小 | 14,419,325 字节（约 13.8 MB），生成时间 2026-10-17 |
 | 包名 / 版本 | `com.cuotixingqiu.app`，versionCode 1，versionName 1.0.0 |
 | SDK 范围 | minSdk 26（Android 8.0）～ targetSdk 36（Android 16），compileSdk 37 |
 | 签名 | debug 签名（Android Debug 证书，V2 签名方案），可直接装到手机 |
@@ -34,7 +34,7 @@
 | `TimeUtilsTest` | 2 | 时间格式化与“今天”边界 |
 | `ViewModelLogicTest` | 6 | 页面逻辑：列表搜索筛选排序、批量标记删除、复习会话、首页统计、组卷范围 |
 
-> 说明：本机没有真机也没有模拟器（CPU 虚拟化不可用），**界面外观和触控行为需要在手机上按「第十章 自测清单」过一遍**；
+> 说明：项目开发时没有真机也没有模拟器（CPU 虚拟化不可用），**界面外观和触控行为需要在手机上按「第十章 自测清单」过一遍**；
 > 以上数字都是实际运行结果，不是估计值。
 
 ---
@@ -181,14 +181,15 @@
 
 ## 五、构建与测试
 
-### 0. 本机（这台开发电脑）的完整命令
+### 0. 准备工作（第一次构建前，只做一次）
 
-```powershell
-$env:JAVA_HOME='D:\Android\jdk21\jdk-21.0.12.1+1'
-$env:ANDROID_HOME='D:\Android\Sdk'
-$env:Path="$env:JAVA_HOME\bin;$env:Path"
-cd D:\aaakaifa
-& 'D:\Android\gradle\gradle-9.8.1\bin\gradle.bat' assembleDebug testDebugUnitTest --console=plain
+1. 安装 **JDK 21**（或任意 17+ 版本），设置好 `JAVA_HOME`
+2. 安装 **Android SDK**：用 Android Studio 自带的即可；纯命令行方式的话，
+   装好 `platforms;android-37.0`、`build-tools;37.0.0`、`platform-tools` 这几个包
+3. 在项目根目录新建 `local.properties`，写上本机 SDK 路径（该文件不会提交到 git）：
+
+```properties
+sdk.dir=C:/Android/Sdk
 ```
 
 ### 1. 通用方式（任何装了 JDK 17+ 的电脑）
@@ -209,8 +210,8 @@ cd 项目目录
 2. 等待 Gradle 同步完成（第一次会下载依赖）
 3. 点绿色三角形运行到手机；或 Build → Build APK(s)
 
-> 本机说明：`local.properties` 里 SDK 路径为 `D:/Android/Sdk`，JDK 用
-> `D:\Android\jdk21\jdk-21.0.12.1+1`。换电脑时改这两个位置即可。
+> 说明：`local.properties` 记录本机的 Android SDK 路径（每台电脑可以不同，
+> 不会提交到 git）。如果构建报「SDK location not found」，检查它的 `sdk.dir` 是否写对。
 
 ---
 
@@ -229,9 +230,12 @@ cd 项目目录
 2. 电脑上执行：
 
 ```powershell
-D:\Android\Sdk\platform-tools\adb.exe devices        # 确认手机已授权
-D:\Android\Sdk\platform-tools\adb.exe install -r D:\aaakaifa\app\build\outputs\apk\debug\app-debug.apk
+adb devices        # 确认手机已授权
+adb install -r app\build\outputs\apk\debug\app-debug.apk
 ```
+
+> 若提示找不到 `adb`，改用它在本机的完整路径，例如
+> `C:\Android\Sdk\platform-tools\adb.exe`（在项目根目录执行）。
 
 ---
 
@@ -249,8 +253,8 @@ D:\Android\Sdk\platform-tools\adb.exe install -r D:\aaakaifa\app\build\outputs\a
 ## 八、常见问题
 
 **Q：构建时卡在下载 Gradle / 依赖？**
-A：首次构建需要联网（约几百 MB）。网络慢时可在 `settings.gradle.kts` 里把仓库换成国内镜像
-（清华 TUNA / 腾讯云），或直接用本机已装好的 Gradle 构建（见第五章第 0 节命令）。
+A：首次构建需要联网下载 Gradle 发行版和全部依赖（共约几百 MB），属正常现象，耐心等待即可。
+网络慢时，可以把 `settings.gradle.kts` 里的 `google()` / `mavenCentral()` 换成国内镜像仓库。
 
 **Q：为什么 App 不需要相机权限？**
 A：拍照通过「调用系统相机」完成（`ACTION_IMAGE_CAPTURE`），照片由系统相机应用直接写入本应用提供的
@@ -271,7 +275,7 @@ A：说明手机上没有能打开 PDF 的应用，改用「分享」发到微�
 
 ## 九、已知限制与遗留问题
 
-1. **未做真机 / 模拟器界面验证**：本机（开发电脑）没有真实手机、也没有可用模拟器，
+1. **未做真机 / 模拟器界面验证**：开发时没有真实手机、也没有可用模拟器，
    界面外观与触控行为需要在手机上按第十章清单自测；逻辑层已用 44 项测试覆盖。
 2. **release 构建未做签名配置**：`assembleRelease` 实测可以编译通过，产物为
    `app\build\outputs\apk\release\app-release-unsigned.apk`（约 9.7 MB，**未签名，不能直接安装**）。
