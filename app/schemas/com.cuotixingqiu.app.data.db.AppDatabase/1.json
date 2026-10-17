@@ -1,0 +1,223 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "dec9af1d8d90f6696bbd347cc4d8a108",
+    "entities": [
+      {
+        "tableName": "wrong_questions",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `subject` TEXT NOT NULL, `notebookId` INTEGER, `title` TEXT NOT NULL, `content` TEXT NOT NULL, `knowledgePoints` TEXT NOT NULL, `reason` TEXT NOT NULL, `solution` TEXT NOT NULL, `summary` TEXT NOT NULL, `imageNames` TEXT NOT NULL, `difficulty` INTEGER NOT NULL, `status` TEXT NOT NULL, `reviewStage` INTEGER NOT NULL, `lastReviewResult` TEXT, `lastReviewedAt` INTEGER, `reviewCount` INTEGER NOT NULL, `nextReviewAt` INTEGER, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "subject",
+            "columnName": "subject",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "notebookId",
+            "columnName": "notebookId",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "content",
+            "columnName": "content",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "knowledgePoints",
+            "columnName": "knowledgePoints",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reason",
+            "columnName": "reason",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "solution",
+            "columnName": "solution",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "summary",
+            "columnName": "summary",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "imageNames",
+            "columnName": "imageNames",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "difficulty",
+            "columnName": "difficulty",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reviewStage",
+            "columnName": "reviewStage",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastReviewResult",
+            "columnName": "lastReviewResult",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastReviewedAt",
+            "columnName": "lastReviewedAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "reviewCount",
+            "columnName": "reviewCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nextReviewAt",
+            "columnName": "nextReviewAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_wrong_questions_subject",
+            "unique": false,
+            "columnNames": [
+              "subject"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_wrong_questions_subject` ON `${TABLE_NAME}` (`subject`)"
+          },
+          {
+            "name": "index_wrong_questions_notebookId",
+            "unique": false,
+            "columnNames": [
+              "notebookId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_wrong_questions_notebookId` ON `${TABLE_NAME}` (`notebookId`)"
+          },
+          {
+            "name": "index_wrong_questions_status",
+            "unique": false,
+            "columnNames": [
+              "status"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_wrong_questions_status` ON `${TABLE_NAME}` (`status`)"
+          },
+          {
+            "name": "index_wrong_questions_nextReviewAt",
+            "unique": false,
+            "columnNames": [
+              "nextReviewAt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_wrong_questions_nextReviewAt` ON `${TABLE_NAME}` (`nextReviewAt`)"
+          },
+          {
+            "name": "index_wrong_questions_createdAt",
+            "unique": false,
+            "columnNames": [
+              "createdAt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_wrong_questions_createdAt` ON `${TABLE_NAME}` (`createdAt`)"
+          }
+        ]
+      },
+      {
+        "tableName": "notebooks",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `createdAt` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_notebooks_name",
+            "unique": true,
+            "columnNames": [
+              "name"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_notebooks_name` ON `${TABLE_NAME}` (`name`)"
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dec9af1d8d90f6696bbd347cc4d8a108')"
+    ]
+  }
+}

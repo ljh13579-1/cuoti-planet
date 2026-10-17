@@ -1,0 +1,15 @@
+# 版本控制忽略清单（如果以后用 git 管理代码，这些文件不需要提交）
+*.iml
+.gradle/
+.kotlin/
+local.properties
+.idea/
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+
+# 签名文件（以后生成正式签名时，千万不要提交到仓库）
+*.jks
+*.keystore

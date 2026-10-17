@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 应用图标前景：一颗带轨道环的小星球（用矢量图绘制，任何尺寸都清晰） -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- 星球主体 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,54 m-17,0 a17,17 0 1,1 34,0 a17,17 0 1,1 -34,0" />
+
+    <!-- 轨道环 -->
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:rotation="-18">
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#A9C4FF"
+            android:strokeWidth="3"
+            android:pathData="M54,54 m-28,0 a28,11 0 1,1 56,0 a28,11 0 1,1 -56,0" />
+    </group>
+
+    <!-- 小星星 -->
+    <path
+        android:fillColor="#7FE3E6"
+        android:pathData="M74,34 l2.2,4.6 5,0.7 -3.6,3.5 0.9,5 -4.5,-2.4 -4.5,2.4 0.9,-5 -3.6,-3.5 5,-0.7 z" />
+</vector>

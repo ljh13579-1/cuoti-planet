@@ -1,0 +1,7 @@
+<resources>
+    <!--
+      应用名称（显示在桌面图标下面）。
+      其余界面文字直接写在 Compose 代码里，方便一边看界面一边对照修改。
+    -->
+    <string name="app_name">错题星球</string>
+</resources>
