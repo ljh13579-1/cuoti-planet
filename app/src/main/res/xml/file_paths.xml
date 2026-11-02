@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 告诉系统：哪些目录可以临时授权给相机应用写入照片 -->
+<paths>
+    <!-- 拍照临时文件目录 -->
+    <cache-path
+        name="camera_temp"
+        path="camera/" />
+    <!-- 错题图片正式保存目录 -->
+    <files-path
+        name="question_images"
+        path="images/" />
+    <!-- 组卷导出的 PDF 目录（用于“分享/打开”生成的试卷） -->
+    <files-path
+        name="exports"
+        path="exports/" />
+</paths>

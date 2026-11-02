@@ -1,0 +1,10 @@
+# 版本控制忽略清单（如果以后用 git 管理代码，这些文件不需要提交）
+*.iml
+.gradle/
+local.properties
+.idea/
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk

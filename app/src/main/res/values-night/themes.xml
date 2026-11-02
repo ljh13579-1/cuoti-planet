@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 深色模式下的启动窗口主题，避免打开应用时闪白屏 -->
+<resources>
+    <style name="Theme.CuotiPlanet" parent="android:Theme.Material.NoActionBar" />
+</resources>

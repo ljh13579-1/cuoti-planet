@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 应用启动窗口使用的主题（真正的界面配色由 Compose 接管） -->
+<resources>
+    <style name="Theme.CuotiPlanet" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>

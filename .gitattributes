@@ -1,0 +1,12 @@
+# 统一换行：源码用 LF，Windows 批处理保留 CRLF，二进制不参与转换
+* text=auto eol=lf
+
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+*.jar binary
+*.apk binary
+*.png binary
+*.webp binary
+*.zip binary
