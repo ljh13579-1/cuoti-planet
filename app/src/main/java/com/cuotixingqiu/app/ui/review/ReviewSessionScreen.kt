@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -59,6 +60,7 @@ import com.cuotixingqiu.app.ui.components.SubjectDot
 import com.cuotixingqiu.app.ui.components.ThinDivider
 import com.cuotixingqiu.app.ui.components.questionDisplayTitle
 import com.cuotixingqiu.app.ui.components.rememberDockClearance
+import com.cuotixingqiu.app.ui.components.withoutTopInset
 import com.cuotixingqiu.app.ui.rememberAppContainer
 import com.cuotixingqiu.app.util.TimeUtils
 import java.io.File
@@ -105,6 +107,7 @@ fun ReviewSessionScreen(
         onBack = onBack,
         snackbarHostState = snackbarHostState,
         maxContentWidth = 680.dp,
+        contentBehindTopBar = true,
         actions = {
             if (current != null && !uiState.finished) {
                 IconButton(onClick = { onOpenQuestion(current.id) }) {
@@ -117,10 +120,11 @@ fun ReviewSessionScreen(
             }
         },
     ) { padding ->
+        val topInset = padding.calculateTopPadding()
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding),
+                .padding(padding.withoutTopInset()),
         ) {
             when {
                 uiState.loading -> {
@@ -134,6 +138,7 @@ fun ReviewSessionScreen(
                         message = "所有到期的错题都复习完了。新错题会在第二天自动进入复习计划。",
                         actionLabel = "返回",
                         onAction = onBack,
+                        modifier = Modifier.padding(top = topInset),
                     )
                 }
 
@@ -141,6 +146,7 @@ fun ReviewSessionScreen(
                     SessionSummary(
                         uiState = uiState,
                         onFinish = onBack,
+                        topInset = topInset,
                     )
                 }
 
@@ -149,6 +155,7 @@ fun ReviewSessionScreen(
                         question = current,
                         revealed = uiState.revealed,
                         progress = (uiState.index + 1).toFloat() / uiState.questions.size.toFloat(),
+                        topInset = topInset,
                         imageFilesOf = { names -> names.mapNotNull { container.imageStore.fileOrNull(it) } },
                         onReveal = viewModel::reveal,
                         onAnswer = viewModel::answer,
@@ -170,6 +177,7 @@ private fun ReviewQuestionContent(
     question: WrongQuestionEntity,
     revealed: Boolean,
     progress: Float,
+    topInset: Dp,
     imageFilesOf: (List<String>) -> List<File>,
     onReveal: () -> Unit,
     onAnswer: (ReviewResult) -> Unit,
@@ -182,11 +190,14 @@ private fun ReviewQuestionContent(
             .padding(
                 start = CuotiVisual.PageHorizontal,
                 end = CuotiVisual.PageHorizontal,
-                top = 8.dp,
+                top = 0.dp,
                 bottom = 20.dp + rememberDockClearance(),
             ),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
+        // 顶部避让放进滚动内容里，滚动时题目才会从顶栏后面穿过
+        Spacer(modifier = Modifier.height(topInset + 8.dp))
+
         // 进度：一条细圆角进度条，替代原来的粗条
         Box(
             modifier = Modifier
@@ -379,6 +390,7 @@ private fun nextIntervalHint(question: WrongQuestionEntity): String {
 private fun SessionSummary(
     uiState: ReviewSessionUiState,
     onFinish: () -> Unit,
+    topInset: Dp,
 ) {
     Column(
         modifier = Modifier
@@ -386,7 +398,7 @@ private fun SessionSummary(
             .padding(
                 start = CuotiVisual.PageHorizontal,
                 end = CuotiVisual.PageHorizontal,
-                top = 20.dp,
+                top = 20.dp + topInset,
                 bottom = 24.dp + rememberDockClearance(),
             ),
         verticalArrangement = Arrangement.Center,

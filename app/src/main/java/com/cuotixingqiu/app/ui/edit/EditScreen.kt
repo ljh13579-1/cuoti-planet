@@ -73,10 +73,11 @@ import com.cuotixingqiu.app.ui.components.CuotiVisual
 import com.cuotixingqiu.app.ui.components.DifficultyStars
 import com.cuotixingqiu.app.ui.components.FilterChipRow
 import com.cuotixingqiu.app.ui.components.ImageViewerDialog
-import com.cuotixingqiu.app.ui.components.PrimaryActionButton
+import com.cuotixingqiu.app.ui.components.GlassActionButton
 import com.cuotixingqiu.app.ui.components.ScreenScaffold
 import com.cuotixingqiu.app.ui.components.SectionHeader
 import com.cuotixingqiu.app.ui.components.ThinDivider
+import com.cuotixingqiu.app.ui.components.withoutTopInset
 import com.cuotixingqiu.app.ui.rememberAppContainer
 import com.cuotixingqiu.app.util.MediaUtils
 import java.io.File
@@ -156,6 +157,8 @@ fun EditScreen(
         onBack = onBack,
         snackbarHostState = snackbarHostState,
         maxContentWidth = 680.dp,
+        // 正文从顶栏下方穿过：Android 12+ 顶栏对身后的滚动内容做真实模糊
+        contentBehindTopBar = true,
         // 键盘弹出时整体上移，保证输入区域和保存按钮始终可用
         modifier = Modifier.imePadding(),
         bottomBar = {
@@ -172,7 +175,8 @@ fun EditScreen(
                                 bottom = 10.dp,
                             ),
                     ) {
-                        PrimaryActionButton(
+                        // 与 Dock 同一套中性玻璃：容器透明，玻璃画在按钮后面
+                        GlassActionButton(
                             text = if (uiState.isNew) "保存错题" else "保存修改",
                             onClick = { viewModel.save(onSaved) },
                             enabled = !uiState.loading && !uiState.importingImages,
@@ -193,11 +197,15 @@ fun EditScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
+                // 只去掉顶部一份：正文从屏幕顶端开始画，顶栏才能录到身后内容
+                .padding(padding.withoutTopInset())
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = CuotiVisual.PageHorizontal, vertical = 10.dp),
+                .padding(horizontal = CuotiVisual.PageHorizontal),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            // 顶部避让放进滚动内容里，滚动时才从顶栏后面穿过
+            Spacer(modifier = Modifier.height(padding.calculateTopPadding() + 8.dp))
+
             // ---------- 学科（必选） ----------
             SectionHeader(title = "学科（必选）")
             FilterChipRow(

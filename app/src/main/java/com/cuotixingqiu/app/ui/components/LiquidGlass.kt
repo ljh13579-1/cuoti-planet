@@ -7,11 +7,19 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -48,6 +56,7 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 /**
  * Liquid Glass 共用材质与控件（v1.3.6）。
@@ -182,23 +191,30 @@ internal fun Modifier.liquidGlassSurface(
 internal fun Modifier.dockGlassSurface(
     isDark: Boolean,
     hasGlassBackdrop: Boolean,
+    /** null = 胶囊（圆角取高度一半）；圆角按钮 / 圆形按钮传入实际圆角 */
+    cornerRadius: Dp? = null,
+    pressed: Boolean = false,
 ): Modifier = drawWithCache {
     val rimWidth = 0.75.dp.toPx()
     val halfRim = rimWidth / 2f
-    val radiusPx = (size.height / 2f).coerceAtMost(size.minDimension / 2f)
+    val radiusPx = (cornerRadius?.toPx() ?: (size.height / 2f))
+        .coerceIn(0f, size.minDimension / 2f)
     val corner = CornerRadius(radiusPx)
+
+    // 按下只轻微提亮，和 Dock 选中项一样不做夸张动画
+    val pressLift = if (pressed) 0.05f else 0f
 
     // 1. 中性 scrim：只负责对比度，不负责颜色。颜色交给身后真实背景。
     val baseBrush = Brush.verticalGradient(
         0f to if (isDark) {
-            Color.Black.copy(alpha = if (hasGlassBackdrop) 0.30f else 0.60f)
+            Color.Black.copy(alpha = (if (hasGlassBackdrop) 0.30f else 0.60f) + pressLift)
         } else {
-            Color.White.copy(alpha = if (hasGlassBackdrop) 0.24f else 0.56f)
+            Color.White.copy(alpha = (if (hasGlassBackdrop) 0.24f else 0.56f) + pressLift)
         },
         1f to if (isDark) {
-            Color.Black.copy(alpha = if (hasGlassBackdrop) 0.22f else 0.50f)
+            Color.Black.copy(alpha = (if (hasGlassBackdrop) 0.22f else 0.50f) + pressLift * 0.6f)
         } else {
-            Color.White.copy(alpha = if (hasGlassBackdrop) 0.16f else 0.44f)
+            Color.White.copy(alpha = (if (hasGlassBackdrop) 0.16f else 0.44f) + pressLift * 0.6f)
         },
     )
     // 2. 顶部很淡的提亮，避免底板顶部完全平掉
@@ -331,13 +347,15 @@ internal fun Modifier.liquidTopBarTint(
     scheme: ColorScheme,
     hasBackdrop: Boolean,
 ): Modifier = drawWithCache {
-    val topColor = if (isDark) scheme.surfaceContainerHigh else Color.White
-    val lowerColor = if (isDark) scheme.surfaceContainer else scheme.surfaceContainerLow
+    // v1.3.9：顶栏也改用中性 scrim（白 / 黑），和 dockGlassSurface 同一套语言，
+    // 不再取 surfaceContainer 的灰蓝底材；颜色交给身后的真实内容。
+    val topColor = if (isDark) Color.Black else Color.White
+    val lowerColor = if (isDark) Color.Black else Color.White
     val topAlpha = when {
         // 有真实模糊时把色调让薄一些，让模糊后的正文纹理真正透出来；
         // 没有模糊的降级页才用更厚的色调保证标题可读。
-        hasBackdrop && isDark -> 0.58f
-        hasBackdrop -> 0.55f
+        hasBackdrop && isDark -> 0.50f
+        hasBackdrop -> 0.46f
         isDark -> 0.90f
         else -> 0.84f
     }
@@ -409,9 +427,10 @@ internal fun TopBarGlassBackdrop(
 /**
  * 二级页返回键：48dp 触摸区，40dp 可见圆形玻璃，箭头居中。
  *
+ * v1.3.9 起改用 Dock 的 [dockGlassSurface]（中性 scrim + 单圈扫光边 + 左上镜面），
+ * 不再用主题色底材的双圈材质，观感和底部 Dock 属于同一套玻璃。
  * 返回键位于页面内容录制层内部，不能直接采样身后内容（否则会引用到自己），
- * 因此复用 Dock 的静态玻璃材质：半透明底、顶部高光、内侧细环、发丝边和轻阴影；
- * 圆本身已经坐在顶栏的模糊层上，观感与 Dock 属于同一套玻璃语言。
+ * 因此这里用静态玻璃；它本身坐在顶栏的模糊层上，滚动时身后是真实模糊。
  */
 @Composable
 fun GlassBackButton(
@@ -448,16 +467,15 @@ fun GlassBackButton(
                     scaleY = scale
                 }
                 .shadow(
-                    elevation = 3.dp,
+                    elevation = 4.dp,
                     shape = CircleShape,
                     clip = false,
-                    ambientColor = Color.Black.copy(alpha = 0.05f),
-                    spotColor = Color.Black.copy(alpha = 0.10f),
+                    ambientColor = Color.Black.copy(alpha = 0.04f),
+                    spotColor = Color.Black.copy(alpha = 0.08f),
                 )
                 .clip(CircleShape)
-                .liquidGlassSurface(
+                .dockGlassSurface(
                     isDark = isDark,
-                    scheme = scheme,
                     hasGlassBackdrop = false,
                     pressed = pressed,
                 ),
@@ -468,6 +486,114 @@ fun GlassBackButton(
             tint = scheme.onSurface,
             modifier = Modifier.size(22.dp),
         )
+    }
+}
+
+/**
+ * 与 Dock 同一套材质的“主操作”玻璃按钮（v1.3.9）。
+ *
+ * 尺寸与布局沿用统一的 [CuotiVisual.ButtonHeight] / [CuotiVisual.ButtonCorner]：
+ * 全宽、54dp 高、16dp 圆角；容器透明、elevation 归零，玻璃画在按钮后面。
+ * [backgroundLayer] 不为空且系统支持时（Android 12+）会采样身后页面内容，
+ * 和 Dock 一样是真实背景 + 模糊/折射；否则退回中性静态玻璃（Android 11 及以下）。
+ * 按下时缩到 0.97 并轻微提亮，和 Dock 的选中反馈同一节奏。
+ */
+@Composable
+fun GlassActionButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    leadingIcon: ImageVector? = null,
+    enabled: Boolean = true,
+    loading: Boolean = false,
+    backgroundLayer: GraphicsLayer? = null,
+) {
+    val scheme = MaterialTheme.colorScheme
+    val isDark = isDarkScheme()
+    val shape = RoundedCornerShape(CuotiVisual.ButtonCorner)
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (pressed) 0.97f else 1f,
+        animationSpec = tween(durationMillis = 120),
+        label = "glassActionScale",
+    )
+    val backdropState = if (backgroundLayer != null) rememberGlassBackdropState() else null
+    var positionInRoot by remember { mutableStateOf(Offset.Unspecified) }
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(CuotiVisual.ButtonHeight)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .shadow(
+                elevation = 8.dp,
+                shape = shape,
+                clip = false,
+                ambientColor = Color.Black.copy(alpha = 0.03f),
+                spotColor = Color.Black.copy(alpha = 0.05f),
+            )
+            .clip(shape)
+            .onGloballyPositioned { positionInRoot = it.positionInRoot() },
+    ) {
+        val layer = backgroundLayer
+        if (layer != null && backdropState != null) {
+            GlassBackdrop(
+                backgroundLayer = layer,
+                state = backdropState,
+                dockPositionInRoot = positionInRoot,
+                cornerRadius = CuotiVisual.ButtonCorner,
+                modifier = Modifier.matchParentSize(),
+            )
+        }
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .dockGlassSurface(
+                    isDark = isDark,
+                    hasGlassBackdrop = backdropState != null,
+                    cornerRadius = CuotiVisual.ButtonCorner,
+                    pressed = pressed,
+                ),
+        )
+        Button(
+            onClick = onClick,
+            enabled = enabled && !loading,
+            modifier = Modifier.matchParentSize(),
+            shape = shape,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent,
+                contentColor = scheme.primary,
+                disabledContainerColor = Color.Transparent,
+                disabledContentColor = scheme.onSurfaceVariant,
+            ),
+            elevation = ButtonDefaults.buttonElevation(0.dp, 0.dp, 0.dp, 0.dp, 0.dp),
+            contentPadding = PaddingValues(horizontal = 20.dp),
+            interactionSource = interaction,
+        ) {
+            if (loading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(18.dp),
+                    strokeWidth = 2.dp,
+                    color = scheme.primary,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            } else if (leadingIcon != null) {
+                Icon(
+                    imageVector = leadingIcon,
+                    contentDescription = null,
+                    modifier = Modifier.size(19.dp),
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelLarge.copy(fontSize = 15.sp),
+            )
+        }
     }
 }
 

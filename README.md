@@ -15,9 +15,9 @@
 | 项目 | 结果 |
 |---|---|
 | debug APK | `app\build\outputs\apk\debug\app-debug.apk` |
-| APK 大小 | 14,697,853 字节（约 14.02 MiB / 14.70 MB），生成时间 2026-11-02 23:08（v1.3.8：五页之外页面视觉收口 + 死代码清理） |
-| APK SHA-256 | `D8C3C1FC53800077D5FF7C9A3BECD248AF133B647511D68087C688B7E9094886` |
-| 包名 / 版本 | `com.cuotixingqiu.app`，versionCode 11，versionName 1.3.8 |
+| APK 大小 | 14,697,853 字节（约 14.02 MiB / 14.70 MB），生成时间 2026-11-02 23:22（v1.3.9 顶栏模糊 + 返回键/保存按钮玻璃统一） |
+| APK SHA-256 | `BEC88385FFF34B726E642BA1B6E693EFEA3D443D36909C738E31DAC017120D87` |
+| 包名 / 版本 | `com.cuotixingqiu.app`，versionCode 12，versionName 1.3.9 |
 | SDK 范围 | minSdk 26（Android 8.0）～ targetSdk 36（Android 16），compileSdk 37 |
 | 签名 | debug 签名（Android Debug 证书，V2 签名方案），与上一版同一证书，可直接覆盖安装 |
 | 单元测试 | **66 项全部通过，0 失败**（见下表；本轮已重新编译、打包并执行 `:app:testDebugUnitTest`） |
@@ -991,9 +991,75 @@ v1.3.7 只重做了 Dock 上方的五个页面，**其余 5 个页面仍在用 v
 - **验收边界**：本机 `adb devices` 为空，没有真机也没有模拟器，所以以上仍然只证明
   “编译 + 打包 + 单测 + APK 元数据”；这 5 个页面的实际观感、字体放大、深色模式和触控
   必须装到手机上按第十章清单验收。
-- 本版单独的实机清单见 [`docs/verify-v1.3.8.md`](docs/verify-v1.3.8.md)（针对这 5 个页面，约 10 分钟）。
+- 本版单独的实机清单见 [`docs/verify-v1.3.9.md`](docs/verify-v1.3.9.md)（针对这 5 个页面，约 10 分钟）。
 
-## 二十、版本记录
+## 二十、顶栏 / 返回键 / 保存按钮与 Dock 材质统一（v1.3.9，2026-11-02）
+
+### 1. 用户实机反馈的三个问题（都发生在添加 / 编辑页）
+
+1. 二级页顶栏**没有背景模糊**；
+2. 返回按钮的玻璃和底部 Dock **不是同一套材质**；
+3. 底部「保存错题」还是**实心蓝色 M3 按钮**。
+
+### 2. 原因
+
+- **顶栏没有模糊**：添加 / 编辑页没有开启 `ScreenScaffold` 的 `contentBehindTopBar`，
+  正文被顶栏 inset 整体下推，录制层录不到“顶栏身后那一条内容”，所以只剩半透明色调。
+  复核后发现复习卡片页（`ReviewSessionScreen`）也是同样情况。
+- **返回键材质不一致**：`GlassBackButton` 用的还是旧的 `liquidGlassSurface`
+  （`surfaceContainer*` 主题底材 + 内圈 / 外圈双描边），而 Dock 在 v1.3.6 已换成
+  `dockGlassSurface`（中性白 / 黑 scrim + 单圈 sweep 扫光边 + 左上局部镜面 + 8dp 轻阴影），
+  两者并排就能看出差别。
+- **保存按钮**：用的是 M3 `Button` 的实心容器。
+
+### 3. 改动
+
+- **顶栏模糊**：添加 / 编辑页与复习卡片页开启 `contentBehindTopBar`，
+  并把顶部避让移进滚动内容（第一项 `Spacer(topInset)`）。正文初始位置仍在顶栏下方，
+  只有滚动时才从顶栏后面穿过；Android 12+ 走原有的
+  「只录顶栏高度一条内容 → `blur(20dp, Rectangle)` → `DstIn` 底部渐隐」链路。
+- **顶栏色调**：从 `surfaceContainer*` 灰蓝底材改为**中性白 / 黑 scrim**
+  （有模糊时浅色 0.46、深色 0.50），与 Dock 同一族；没有模糊的降级页仍是 0.84 / 0.90，
+  保证标题可读。不画横向分隔线。
+- **返回键**：`GlassBackButton` 改用 `dockGlassSurface`（中性 scrim + 单圈扫光边 + 左上镜面），
+  阴影 3dp → 4dp 并按 Dock 的减重口径调淡，按下 0.94 缩放 + 轻微提亮。
+  这个组件被所有二级页共用，一处改动全部生效。
+- **保存按钮**：新增 `GlassActionButton`（`LiquidGlass.kt`）：全宽 54dp / 16dp 圆角，
+  容器透明、elevation 归零，玻璃画在按钮后面；支持 loading 转圈与 disabled 态；
+  按下 0.97 缩放 + 提亮，节奏和 Dock 选中一致。底部「保存错题 / 保存修改」已换用它。
+  它接受可选的 `backgroundLayer`：传入录制层时（API 33+）可以和 Dock 一样做背景采样 / 折射，
+  当前底部栏不传，因此用的是与 Dock 在 Android 11 及以下相同的**静态中性玻璃**。
+
+### 4. 保持不变
+
+- 顶栏高度、标题层级、返回按键的 48dp 触摸区与返回逻辑、保存按钮的尺寸 / 文案 / 点击 / 加载态
+  / 键盘避让全部未变；`ScreenScaffold` 的 API 没有破坏性改动。
+- Room、DAO、ViewModel、导航、复习算法、导入导出、PDF 组卷逻辑均未改动。
+
+### 5. 验证结果
+
+- `:app:compileDebugKotlin`：成功，**零警告**。
+- `:app:assembleDebug`：成功；APK **14,697,853 字节**，versionCode 12 / versionName 1.3.9，
+  SHA-256 `BEC88385FFF34B726E642BA1B6E693EFEA3D443D36909C738E31DAC017120D87`，
+  生成时间 2026-11-02 23:22:59。
+- `:app:assembleRelease`：成功；未签名产物 10,330,240 字节（约 9.85 MiB）。
+- `:app:testDebugUnitTest`：**66 项全部通过，0 失败 / 0 错误 / 0 跳过**。
+- **验收边界**：本机仍然没有真机 / 模拟器，所以“顶栏是否真的模糊、玻璃观感是否一致”
+  只能通过实机确认，因此这一版的重点验收项就是这三处（见 `docs/verify-v1.3.9.md` 第 1、6 节）。
+
+### 6. 尚未统一的（可选，等你决定）
+
+- 组卷页「生成 PDF」等其它页面主按钮仍是实心品牌蓝；如果希望全 App 的主动作都换成玻璃，
+  把调用从 `PrimaryActionButton` 换成 `GlassActionButton` 即可，一处一行。
+
+## 二十一、版本记录
+
+- v1.3.9（2026-11-02）：顶栏 / 返回键 / 保存按钮与 Dock 材质统一。添加/编辑与复习卡片页
+  开启顶栏真实背景模糊（顶部避让移进滚动内容）；顶栏色调改中性白/黑 scrim；
+  `GlassBackButton` 改用 `dockGlassSurface`；新增 `GlassActionButton` 并用于底部保存按钮。
+  `:app:compileDebugKotlin`（零警告）、`:app:assembleDebug`、`:app:assembleRelease`、
+  `:app:testDebugUnitTest` 均成功，66 项测试全部通过；versionCode 12。真机观感未验收。
+  详见第二十章。
 
 - v1.3.8（2026-11-02）：其余五页视觉收口 + 工程清理。添加/编辑、复习卡片、统计、
   错题本分类、组卷导出并入 v1.3.7 的暖灰底 + 白卡 + 品牌蓝紫体系；统一页面边距、
