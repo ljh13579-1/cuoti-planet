@@ -15,9 +15,9 @@
 | 项目 | 结果 |
 |---|---|
 | debug APK | `app\build\outputs\apk\debug\app-debug.apk` |
-| APK 大小 | 14,697,853 字节（约 14.02 MiB / 14.70 MB），生成时间 2026-11-02 23:22（v1.3.9 顶栏模糊 + 返回键/保存按钮玻璃统一） |
-| APK SHA-256 | `BEC88385FFF34B726E642BA1B6E693EFEA3D443D36909C738E31DAC017120D87` |
-| 包名 / 版本 | `com.cuotixingqiu.app`，versionCode 12，versionName 1.3.9 |
+| APK 大小 | 14,697,853 字节（约 14.02 MiB / 14.70 MB），生成时间 2026-11-02 23:35（v1.3.10 悬浮胶囊保存按钮 + 返回键真实采样） |
+| APK SHA-256 | `D8F7E3B1B7DE2A9AF9AF9D00D65FC2107FC1699724C27D1B8299D0B957E05620` |
+| 包名 / 版本 | `com.cuotixingqiu.app`，versionCode 13，versionName 1.3.10 |
 | SDK 范围 | minSdk 26（Android 8.0）～ targetSdk 36（Android 16），compileSdk 37 |
 | 签名 | debug 签名（Android Debug 证书，V2 签名方案），与上一版同一证书，可直接覆盖安装 |
 | 单元测试 | **66 项全部通过，0 失败**（见下表；本轮已重新编译、打包并执行 `:app:testDebugUnitTest`） |
@@ -991,7 +991,7 @@ v1.3.7 只重做了 Dock 上方的五个页面，**其余 5 个页面仍在用 v
 - **验收边界**：本机 `adb devices` 为空，没有真机也没有模拟器，所以以上仍然只证明
   “编译 + 打包 + 单测 + APK 元数据”；这 5 个页面的实际观感、字体放大、深色模式和触控
   必须装到手机上按第十章清单验收。
-- 本版单独的实机清单见 [`docs/verify-v1.3.9.md`](docs/verify-v1.3.9.md)（针对这 5 个页面，约 10 分钟）。
+- 本版单独的实机清单见 [`docs/verify-latest.md`](docs/verify-latest.md)（针对这 5 个页面，约 10 分钟）。
 
 ## 二十、顶栏 / 返回键 / 保存按钮与 Dock 材质统一（v1.3.9，2026-11-02）
 
@@ -1045,15 +1045,49 @@ v1.3.7 只重做了 Dock 上方的五个页面，**其余 5 个页面仍在用 v
 - `:app:assembleRelease`：成功；未签名产物 10,330,240 字节（约 9.85 MiB）。
 - `:app:testDebugUnitTest`：**66 项全部通过，0 失败 / 0 错误 / 0 跳过**。
 - **验收边界**：本机仍然没有真机 / 模拟器，所以“顶栏是否真的模糊、玻璃观感是否一致”
-  只能通过实机确认，因此这一版的重点验收项就是这三处（见 `docs/verify-v1.3.9.md` 第 1、6 节）。
+  只能通过实机确认，因此这一版的重点验收项就是这三处（见 `docs/verify-latest.md` 第 1、6 节）。
 
 ### 6. 尚未统一的（可选，等你决定）
 
 - 组卷页「生成 PDF」等其它页面主按钮仍是实心品牌蓝；如果希望全 App 的主动作都换成玻璃，
   把调用从 `PrimaryActionButton` 换成 `GlassActionButton` 即可，一处一行。
 
+### 7. 后续修正：保存按钮改为独立悬浮胶囊（v1.3.10，2026-11-02）
+
+实机看过 v1.3.9 之后，用户提了两点：**保存按钮下面还有一整条深色底栏**、**按钮不是 Dock 那种形状**，
+并且希望返回键和保存按钮都真正具备 Dock 的液态玻璃观感。这一轮做的都是表现层：
+
+- **去掉底栏**：删掉 `bottomBar`（连同 `Surface(background)` 和分隔线），保存按钮改为
+  `Box(align = BottomCenter)` 悬浮在内容之上，底下不再有任何实色条。
+- **形状改成胶囊**：`GlassActionButton` 的 shape 从 16dp 圆角矩形改为 `RoundedCornerShape(percent = 50)`，
+  与 Dock 本体同一种形状语言；高度仍是 54dp。
+- **安装真实背景采样**：新增 `Modifier.glassButtonBackdropRecorder`（`Common.kt`），
+  只把**按钮大小的一块**（约 54dp 高、宽 = 屏宽 - 40dp）内容录进离屏图层；
+  按钮用 `GlassBackdrop` 按 (0,0) 对齐采样，于是 Android 12/12L 是真实背景模糊、
+  Android 13+ 是模糊 + 边缘折射，和 Dock / FAB 走的是同一条链路。低于 Android 12 不创建图层，
+  退回中性静态玻璃（与 Dock 在低版本上一致）。
+- **返回键也采样**：`ScreenScaffold` 把顶栏那条内容图层传给 `GlassBackButton`，
+  返回圆钮因此不再是"纯静态玻璃"，滚动时能透出身后的真实内容；图层只含正文、不含顶栏，
+  不会自采样。
+- **内容避让**：表单底部改为 `Spacer(按钮高度 + Dock 避让 + 18dp)`，最后一条内容能完整滚出按钮上方；
+  键盘弹出时按钮跟随 `imePadding` 上移。
+- **性能**：新增的录制只覆盖按钮那一块（不是整页），和顶栏那条同一量级；
+  图层与 shader 都在 `remember` 里创建一次，不逐帧重建。
+
+验证：`compileDebugKotlin` 零警告；`assembleDebug` / `assembleRelease` / `testDebugUnitTest`
+（66 项）全部成功；APK 14,697,853 字节，versionCode 13 / 1.3.10，
+SHA-256 `D8F7E3B1B7DE2A9AF9AF9D00D65FC2107FC1699724C27D1B8299D0B957E05620`。
+真机观感仍未验收，重点就是"胶囊形状 / 没有底栏 / 能透出身后内容"这三件事。
+
 ## 二十一、版本记录
 
+- v1.3.10（2026-11-02）：保存按钮改为独立悬浮胶囊。删掉编辑页的底栏（不再有一整条深色条），
+  按钮形状改为与 Dock 一致的胶囊；新增 `glassButtonBackdropRecorder` 只录制按钮大小的区域，
+  保存按钮与返回键都改用真实背景采样（Android 12+ 模糊 / 13+ 折射），低于 12 退回中性静态玻璃；
+  表单底部重新留出按钮高度 + Dock 避让。
+  `:app:compileDebugKotlin`（零警告）、`:app:assembleDebug`、`:app:assembleRelease`、
+  `:app:testDebugUnitTest` 均成功，66 项测试全部通过；versionCode 13。真机观感未验收。
+  详见第二十章第 7 节。
 - v1.3.9（2026-11-02）：顶栏 / 返回键 / 保存按钮与 Dock 材质统一。添加/编辑与复习卡片页
   开启顶栏真实背景模糊（顶部避让移进滚动内容）；顶栏色调改中性白/黑 scrim；
   `GlassBackButton` 改用 `dockGlassSurface`；新增 `GlassActionButton` 并用于底部保存按钮。

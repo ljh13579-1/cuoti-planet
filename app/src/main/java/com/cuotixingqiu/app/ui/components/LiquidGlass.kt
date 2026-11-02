@@ -436,6 +436,8 @@ internal fun TopBarGlassBackdrop(
 fun GlassBackButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    /** 顶栏那条内容图层；非空且系统支持时做真实背景采样 + 折射，null 则用静态玻璃 */
+    backgroundLayer: GraphicsLayer? = null,
 ) {
     val scheme = MaterialTheme.colorScheme
     val isDark = isDarkScheme()
@@ -446,6 +448,8 @@ fun GlassBackButton(
         animationSpec = tween(durationMillis = 110),
         label = "glassBackScale",
     )
+    val backdropState = if (backgroundLayer != null) rememberGlassBackdropState() else null
+    var positionInRoot by remember { mutableStateOf(Offset.Unspecified) }
 
     Box(
         modifier = modifier
@@ -474,26 +478,47 @@ fun GlassBackButton(
                     spotColor = Color.Black.copy(alpha = 0.08f),
                 )
                 .clip(CircleShape)
-                .dockGlassSurface(
-                    isDark = isDark,
-                    hasGlassBackdrop = false,
-                    pressed = pressed,
-                ),
-        )
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = "返回",
-            tint = scheme.onSurface,
-            modifier = Modifier.size(22.dp),
-        )
+                .onGloballyPositioned { positionInRoot = it.positionInRoot() },
+        ) {
+            // 1. 真实背景：顶栏那条内容（录制层在内容槽，不含顶栏和返回键本身，不会自采样）
+            val layer = backgroundLayer
+            if (layer != null && backdropState != null) {
+                GlassBackdrop(
+                    backgroundLayer = layer,
+                    state = backdropState,
+                    dockPositionInRoot = positionInRoot,
+                    modifier = Modifier.matchParentSize(),
+                )
+            }
+            // 2. Dock 同款中性玻璃：scrim + 单圈扫光边 + 左上镜面
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .dockGlassSurface(
+                        isDark = isDark,
+                        hasGlassBackdrop = backdropState != null,
+                        pressed = pressed,
+                    ),
+            )
+            // 3. 箭头（不进入采样，保持清晰）
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "返回",
+                tint = scheme.onSurface,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(22.dp),
+            )
+        }
     }
 }
 
 /**
  * 与 Dock 同一套材质的“主操作”玻璃按钮（v1.3.9）。
  *
- * 尺寸与布局沿用统一的 [CuotiVisual.ButtonHeight] / [CuotiVisual.ButtonCorner]：
- * 全宽、54dp 高、16dp 圆角；容器透明、elevation 归零，玻璃画在按钮后面。
+ * 尺寸与布局沿用统一的按钮高度：[CuotiVisual.ButtonHeight]（54dp），
+ * 形状与 Dock 一致用**胶囊**（圆角取高度一半），不再是 16dp 圆角矩形。
+ * 容器透明、elevation 归零，玻璃画在按钮后面。
  * [backgroundLayer] 不为空且系统支持时（Android 12+）会采样身后页面内容，
  * 和 Dock 一样是真实背景 + 模糊/折射；否则退回中性静态玻璃（Android 11 及以下）。
  * 按下时缩到 0.97 并轻微提亮，和 Dock 的选中反馈同一节奏。
@@ -507,10 +532,16 @@ fun GlassActionButton(
     enabled: Boolean = true,
     loading: Boolean = false,
     backgroundLayer: GraphicsLayer? = null,
+    /**
+     * 采样层的屏幕位置：null = 自动测量本控件在窗口中的位置（要求 [backgroundLayer] 覆盖整个窗口、
+     * 左上角为 (0,0)）；传入 [Offset.Zero] 表示图层本身就是与按钮等大的局部切片。
+     */
+    backdropPosition: Offset? = null,
 ) {
     val scheme = MaterialTheme.colorScheme
     val isDark = isDarkScheme()
-    val shape = RoundedCornerShape(CuotiVisual.ButtonCorner)
+    // 胶囊：与 Dock 本体同一种形状语言
+    val shape = RoundedCornerShape(percent = 50)
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     val scale by animateFloatAsState(
@@ -544,8 +575,7 @@ fun GlassActionButton(
             GlassBackdrop(
                 backgroundLayer = layer,
                 state = backdropState,
-                dockPositionInRoot = positionInRoot,
-                cornerRadius = CuotiVisual.ButtonCorner,
+                dockPositionInRoot = backdropPosition ?: positionInRoot,
                 modifier = Modifier.matchParentSize(),
             )
         }
@@ -555,7 +585,6 @@ fun GlassActionButton(
                 .dockGlassSurface(
                     isDark = isDark,
                     hasGlassBackdrop = backdropState != null,
-                    cornerRadius = CuotiVisual.ButtonCorner,
                     pressed = pressed,
                 ),
         )

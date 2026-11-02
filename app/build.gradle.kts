@@ -19,8 +19,8 @@ android {
         applicationId = "com.cuotixingqiu.app"
         minSdk = 26          // 最低支持 Android 8.0
         targetSdk = 36       // 目标 Android 16
-        versionCode = 12
-        versionName = "1.3.9"
+        versionCode = 13
+        versionName = "1.3.10"
 
         vectorDrawables {
             useSupportLibrary = true

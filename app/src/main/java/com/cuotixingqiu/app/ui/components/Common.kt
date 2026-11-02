@@ -53,6 +53,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.layer.GraphicsLayer
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.rememberGraphicsLayer
@@ -217,7 +218,10 @@ fun ScreenScaffold(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         if (onBack != null) {
-                            GlassBackButton(onClick = onBack)
+                            GlassBackButton(
+                                onClick = onBack,
+                                backgroundLayer = if (topBarBlurActive) topBarBackdropLayer else null,
+                            )
                         }
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
@@ -327,6 +331,35 @@ private fun Modifier.topBarBackdropRecorder(
         layer.record(IntSize(width, height)) {
             drawRect(color = background)
             this@drawWithContent.drawContent()
+        }
+    }
+    this@drawWithContent.drawContent()
+}
+
+/**
+ * 悬浮玻璃按钮的“身后一条”录制器：把按钮所在的那块内容录进离屏图层，
+ * 供按钮做真实背景采样（Android 12+）。只录按钮大小的一块（约 54dp 高），
+ * 不是整页，成本和顶栏那条相当。
+ *
+ * @param bottomInset 按钮底边离内容区底部的距离（用来和按钮的实际位置对齐）
+ */
+internal fun Modifier.glassButtonBackdropRecorder(
+    layer: GraphicsLayer,
+    background: Color,
+    horizontalInset: Dp,
+    bottomInset: Dp,
+    buttonHeight: Dp,
+): Modifier = drawWithContent {
+    val insetPx = horizontalInset.toPx()
+    val heightPx = buttonHeight.toPx()
+    val widthPx = (size.width - insetPx * 2f).toInt()
+    val topPx = size.height - bottomInset.toPx() - heightPx
+    if (widthPx > 0 && heightPx > 0f && topPx >= 0f) {
+        layer.record(IntSize(widthPx, heightPx.toInt())) {
+            drawRect(color = background)
+            translate(left = -insetPx, top = -topPx) {
+                this@drawWithContent.drawContent()
+            }
         }
     }
     this@drawWithContent.drawContent()

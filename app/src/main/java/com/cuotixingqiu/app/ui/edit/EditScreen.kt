@@ -43,7 +43,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -56,6 +55,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -76,8 +76,11 @@ import com.cuotixingqiu.app.ui.components.ImageViewerDialog
 import com.cuotixingqiu.app.ui.components.GlassActionButton
 import com.cuotixingqiu.app.ui.components.ScreenScaffold
 import com.cuotixingqiu.app.ui.components.SectionHeader
-import com.cuotixingqiu.app.ui.components.ThinDivider
 import com.cuotixingqiu.app.ui.components.withoutTopInset
+import androidx.compose.ui.graphics.rememberGraphicsLayer
+import com.cuotixingqiu.app.ui.components.glassButtonBackdropRecorder
+import com.cuotixingqiu.app.ui.components.isGlassBackdropSupported
+import com.cuotixingqiu.app.ui.components.rememberDockClearance
 import com.cuotixingqiu.app.ui.rememberAppContainer
 import com.cuotixingqiu.app.util.MediaUtils
 import java.io.File
@@ -151,6 +154,13 @@ fun EditScreen(
         }
     }
 
+    // 悬浮玻璃按钮不再占用一整条底栏：只保留按钮本身，内容从它身后滚过。
+    val dockClearance = rememberDockClearance()
+    val buttonBottomGap = dockClearance + 12.dp
+    // 记录按钮身后那一块内容，让按钮能做真实背景采样（Android 12+）；低版本自动为空
+    val buttonBackdropLayer = if (isGlassBackdropSupported()) rememberGraphicsLayer() else null
+    val background = MaterialTheme.colorScheme.background
+
     ScreenScaffold(
         title = if (uiState.isNew) "添加错题" else "编辑错题",
         subtitle = "除学科外，其它内容都可以先不填",
@@ -161,31 +171,6 @@ fun EditScreen(
         contentBehindTopBar = true,
         // 键盘弹出时整体上移，保证输入区域和保存按钮始终可用
         modifier = Modifier.imePadding(),
-        bottomBar = {
-            Surface(color = MaterialTheme.colorScheme.background) {
-                Column {
-                    ThinDivider()
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                start = CuotiVisual.PageHorizontal,
-                                end = CuotiVisual.PageHorizontal,
-                                top = 10.dp,
-                                bottom = 10.dp,
-                            ),
-                    ) {
-                        // 与 Dock 同一套中性玻璃：容器透明，玻璃画在按钮后面
-                        GlassActionButton(
-                            text = if (uiState.isNew) "保存错题" else "保存修改",
-                            onClick = { viewModel.save(onSaved) },
-                            enabled = !uiState.loading && !uiState.importingImages,
-                            loading = uiState.saving,
-                        )
-                    }
-                }
-            }
-        },
     ) { padding ->
         if (uiState.loading) {
             Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
@@ -194,17 +179,34 @@ fun EditScreen(
             return@ScreenScaffold
         }
 
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 // 只去掉顶部一份：正文从屏幕顶端开始画，顶栏才能录到身后内容
-                .padding(padding.withoutTopInset())
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = CuotiVisual.PageHorizontal),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(padding.withoutTopInset()),
         ) {
-            // 顶部避让放进滚动内容里，滚动时才从顶栏后面穿过
-            Spacer(modifier = Modifier.height(padding.calculateTopPadding() + 8.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .then(
+                        if (buttonBackdropLayer != null) {
+                            Modifier.glassButtonBackdropRecorder(
+                                layer = buttonBackdropLayer,
+                                background = background,
+                                horizontalInset = CuotiVisual.PageHorizontal,
+                                bottomInset = buttonBottomGap,
+                                buttonHeight = CuotiVisual.ButtonHeight,
+                            )
+                        } else {
+                            Modifier
+                        },
+                    )
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = CuotiVisual.PageHorizontal),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                // 顶部避让放进滚动内容里，滚动时才从顶栏后面穿过
+                Spacer(modifier = Modifier.height(padding.calculateTopPadding() + 8.dp))
 
             // ---------- 学科（必选） ----------
             SectionHeader(title = "学科（必选）")
@@ -399,7 +401,30 @@ fun EditScreen(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            // 给悬浮保存按钮 + Dock 留出空间，最后一条内容能完整滚出来
+            Spacer(modifier = Modifier.height(buttonBottomGap + CuotiVisual.ButtonHeight + 18.dp))
+            }
+
+            // 悬浮玻璃保存按钮：不占底栏、不成条，胶囊形状与 Dock 一致
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(
+                        start = CuotiVisual.PageHorizontal,
+                        end = CuotiVisual.PageHorizontal,
+                        bottom = buttonBottomGap,
+                    ),
+            ) {
+                GlassActionButton(
+                    text = if (uiState.isNew) "保存错题" else "保存修改",
+                    onClick = { viewModel.save(onSaved) },
+                    enabled = !uiState.loading && !uiState.importingImages,
+                    loading = uiState.saving,
+                    backgroundLayer = buttonBackdropLayer,
+                    // 图层本身就是与按钮等大的一块切片，不需要再做屏幕位置换算
+                    backdropPosition = Offset.Zero,
+                )
+            }
         }
     }
 
