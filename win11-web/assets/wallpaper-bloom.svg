@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#030b18"/>
+      <stop offset=".48" stop-color="#07233f"/>
+      <stop offset="1" stop-color="#0a3a58"/>
+    </linearGradient>
+    <radialGradient id="ambient" cx=".62" cy=".44" r=".62">
+      <stop offset="0" stop-color="#3355ff" stop-opacity=".55"/>
+      <stop offset=".45" stop-color="#1d4cff" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#02091a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="petalA" x1=".2" y1="1" x2=".8" y2="0">
+      <stop offset="0" stop-color="#0c2a72" stop-opacity=".1"/>
+      <stop offset=".35" stop-color="#2563eb" stop-opacity=".5"/>
+      <stop offset=".68" stop-color="#38bdf8" stop-opacity=".82"/>
+      <stop offset="1" stop-color="#c4f5ff" stop-opacity=".96"/>
+    </linearGradient>
+    <linearGradient id="petalB" x1=".3" y1="1" x2=".7" y2="0">
+      <stop offset="0" stop-color="#24105e" stop-opacity=".1"/>
+      <stop offset=".4" stop-color="#6d28d9" stop-opacity=".55"/>
+      <stop offset=".72" stop-color="#a78bfa" stop-opacity=".8"/>
+      <stop offset="1" stop-color="#e9d5ff" stop-opacity=".95"/>
+    </linearGradient>
+    <linearGradient id="petalC" x1=".3" y1="1" x2=".7" y2="0">
+      <stop offset="0" stop-color="#181a55" stop-opacity=".1"/>
+      <stop offset=".42" stop-color="#2563eb" stop-opacity=".45"/>
+      <stop offset=".75" stop-color="#c084fc" stop-opacity=".75"/>
+      <stop offset="1" stop-color="#f0abfc" stop-opacity=".92"/>
+    </linearGradient>
+    <linearGradient id="core" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#dffbff"/>
+      <stop offset=".45" stop-color="#7dd3fc"/>
+      <stop offset="1" stop-color="#818cf8"/>
+    </linearGradient>
+    <linearGradient id="ribbon" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#38bdf8" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#60a5fa" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#c084fc" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="vignette" cx=".55" cy=".45" r=".78">
+      <stop offset=".45" stop-color="#010714" stop-opacity="0"/>
+      <stop offset=".82" stop-color="#01040c" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#000309" stop-opacity=".7"/>
+    </radialGradient>
+    <filter id="soft" x="-35%" y="-35%" width="170%" height="170%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+    <filter id="soft2" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="38"/>
+    </filter>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="55"/>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <ellipse cx="1230" cy="500" rx="980" ry="760" fill="url(#ambient)"/>
+
+  <!-- soft base petals -->
+  <g filter="url(#soft2)" opacity=".55">
+    <g transform="translate(1210 530)">
+      <path transform="rotate(-24)" d="M0,80 C-140,-30 -300,-150 -310,-330 C-320,-470 -200,-560 -80,-540 C70,-515 165,-380 150,-240 C135,-110 60,-5 0,80Z" fill="#1d4ed8"/>
+      <path transform="rotate(46)" d="M0,80 C-140,-30 -300,-150 -310,-330 C-320,-470 -200,-560 -80,-540 C70,-515 165,-380 150,-240 C135,-110 60,-5 0,80Z" fill="#7c3aed"/>
+      <path transform="rotate(124)" d="M0,80 C-140,-30 -300,-150 -310,-330 C-320,-470 -200,-560 -80,-540 C70,-515 165,-380 150,-240 C135,-110 60,-5 0,80Z" fill="#0e7490"/>
+      <path transform="rotate(204)" d="M0,80 C-140,-30 -300,-150 -310,-330 C-320,-470 -200,-560 -80,-540 C70,-515 165,-380 150,-240 C135,-110 60,-5 0,80Z" fill="#4338ca"/>
+      <path transform="rotate(282)" d="M0,80 C-140,-30 -300,-150 -310,-330 C-320,-470 -200,-560 -80,-540 C70,-515 165,-380 150,-240 C135,-110 60,-5 0,80Z" fill="#6d28d9"/>
+    </g>
+  </g>
+
+  <!-- luminous petals -->
+  <g filter="url(#soft)" style="mix-blend-mode:screen" opacity=".9">
+    <g transform="translate(1210 530)">
+      <path transform="rotate(-24) scale(.92)" d="M0,80 C-140,-30 -300,-150 -310,-330 C-320,-470 -200,-560 -80,-540 C70,-515 165,-380 150,-240 C135,-110 60,-5 0,80Z" fill="url(#petalA)"/>
+      <path transform="rotate(46) scale(.88)" d="M0,80 C-140,-30 -300,-150 -310,-330 C-320,-470 -200,-560 -80,-540 C70,-515 165,-380 150,-240 C135,-110 60,-5 0,80Z" fill="url(#petalB)"/>
+      <path transform="rotate(124) scale(.9)" d="M0,80 C-140,-30 -300,-150 -310,-330 C-320,-470 -200,-560 -80,-540 C70,-515 165,-380 150,-240 C135,-110 60,-5 0,80Z" fill="url(#petalA)"/>
+      <path transform="rotate(204) scale(.86)" d="M0,80 C-140,-30 -300,-150 -310,-330 C-320,-470 -200,-560 -80,-540 C70,-515 165,-380 150,-240 C135,-110 60,-5 0,80Z" fill="url(#petalC)"/>
+      <path transform="rotate(282) scale(.9)" d="M0,80 C-140,-30 -300,-150 -310,-330 C-320,-470 -200,-560 -80,-540 C70,-515 165,-380 150,-240 C135,-110 60,-5 0,80Z" fill="url(#petalB)"/>
+    </g>
+  </g>
+
+  <!-- inner curled petals -->
+  <g filter="url(#soft)" opacity=".8">
+    <g transform="translate(1210 530)">
+      <path transform="rotate(10) scale(.5)" d="M0,80 C-140,-30 -300,-150 -310,-330 C-320,-470 -200,-560 -80,-540 C70,-515 165,-380 150,-240 C135,-110 60,-5 0,80Z" fill="url(#petalC)"/>
+      <path transform="rotate(95) scale(.46)" d="M0,80 C-140,-30 -300,-150 -310,-330 C-320,-470 -200,-560 -80,-540 C70,-515 165,-380 150,-240 C135,-110 60,-5 0,80Z" fill="url(#petalB)"/>
+      <path transform="rotate(185) scale(.52)" d="M0,80 C-140,-30 -300,-150 -310,-330 C-320,-470 -200,-560 -80,-540 C70,-515 165,-380 150,-240 C135,-110 60,-5 0,80Z" fill="url(#petalA)"/>
+      <path transform="rotate(270) scale(.44)" d="M0,80 C-140,-30 -300,-150 -310,-330 C-320,-470 -200,-560 -80,-540 C70,-515 165,-380 150,-240 C135,-110 60,-5 0,80Z" fill="url(#petalC)"/>
+    </g>
+  </g>
+
+  <ellipse cx="1210" cy="520" rx="150" ry="120" fill="url(#core)" opacity=".38" filter="url(#glow)"/>
+  <ellipse cx="1210" cy="520" rx="46" ry="36" fill="#e8fcff" opacity=".55" filter="url(#soft2)"/>
+
+  <!-- fine light strands -->
+  <g fill="none" stroke="url(#ribbon)" opacity=".9">
+    <path d="M240,900 C560,760 460,560 860,470 C1240,384 1450,620 1740,520" stroke-width="4"/>
+    <path d="M120,980 C520,900 640,690 1010,620 C1400,545 1580,760 1840,690" stroke-width="2.2" opacity=".7"/>
+    <path d="M430,220 C680,340 900,180 1180,220 C1460,260 1540,160 1730,230" stroke-width="2" opacity=".55"/>
+  </g>
+  <g fill="none" stroke="#e0f7ff" opacity=".22" filter="url(#soft)">
+    <path d="M700,780 C880,610 840,460 1060,400" stroke-width="2"/>
+    <path d="M1360,760 C1470,640 1650,650 1700,550" stroke-width="2"/>
+  </g>
+
+  <!-- lower left drifting ribbon -->
+  <g filter="url(#soft2)" opacity=".55">
+    <path d="M-80,960 C320,860 520,980 840,860 C1080,770 1080,660 1280,700" fill="none" stroke="url(#ribbon)" stroke-width="110" stroke-linecap="round"/>
+  </g>
+
+  <rect width="1920" height="1080" fill="url(#vignette)"/>
+</svg>

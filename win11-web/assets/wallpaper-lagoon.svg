@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#03110f"/>
+      <stop offset=".5" stop-color="#07342f"/>
+      <stop offset="1" stop-color="#0b5650"/>
+    </linearGradient>
+    <radialGradient id="glowA" cx=".68" cy=".55" r=".6">
+      <stop offset="0" stop-color="#4ef2c6" stop-opacity=".5"/>
+      <stop offset=".5" stop-color="#0ea5a0" stop-opacity=".16"/>
+      <stop offset="1" stop-color="#02110f" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx=".25" cy=".25" r=".45">
+      <stop offset="0" stop-color="#a3e635" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#02110f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="waveA" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0d9488" stop-opacity=".05"/>
+      <stop offset=".35" stop-color="#2dd4bf" stop-opacity=".55"/>
+      <stop offset=".65" stop-color="#a3e635" stop-opacity=".4"/>
+      <stop offset="1" stop-color="#041f1c" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="waveB" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0f766e" stop-opacity="0"/>
+      <stop offset=".4" stop-color="#67e8f9" stop-opacity=".45"/>
+      <stop offset=".75" stop-color="#5eead4" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#04211d" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="lineA" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#a7f3d0" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#d9fffb" stop-opacity=".7"/>
+      <stop offset="1" stop-color="#a7f3d0" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="vignette" cx=".55" cy=".5" r=".8">
+      <stop offset=".45" stop-color="#010b09" stop-opacity="0"/>
+      <stop offset=".8" stop-color="#010a08" stop-opacity=".3"/>
+      <stop offset="1" stop-color="#000504" stop-opacity=".76"/>
+    </radialGradient>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="26"/></filter>
+    <filter id="soft2" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="55"/></filter>
+    <filter id="tiny" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.2"/></filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <ellipse cx="1300" cy="600" rx="900" ry="700" fill="url(#glowA)"/>
+  <ellipse cx="420" cy="240" rx="700" ry="500" fill="url(#glowB)"/>
+
+  <!-- broad aurora ribbons -->
+  <g fill="none" filter="url(#soft2)" opacity=".8">
+    <path d="M-120,760 C300,560 520,820 900,700 C1280,580 1390,330 1720,420 C1840,450 1920,430 2020,390" stroke="url(#waveA)" stroke-width="160" stroke-linecap="round"/>
+    <path d="M-140,900 C320,760 660,940 1040,810 C1400,690 1560,480 1980,560" stroke="url(#waveB)" stroke-width="90" stroke-linecap="round" opacity=".8"/>
+  </g>
+
+  <!-- crisp layered waves -->
+  <g fill="none" stroke-linecap="round">
+    <path d="M-100,700 C260,540 540,760 880,640 C1220,520 1380,300 1700,380 C1840,415 1930,395 2020,360" stroke="url(#waveA)" stroke-width="26" opacity=".75"/>
+    <path d="M-100,760 C280,610 580,820 940,700 C1300,580 1450,380 1760,450 C1860,472 1950,460 2020,430" stroke="url(#waveB)" stroke-width="10" opacity=".9"/>
+    <path d="M-80,820 C320,690 600,900 1000,780 C1400,660 1580,500 1980,540" stroke="url(#waveA)" stroke-width="2.4" opacity=".8"/>
+    <path d="M-80,840 C340,720 620,930 1040,800 C1460,670 1660,540 1980,570" stroke="url(#lineA)" stroke-width="1.4" opacity=".55"/>
+    <path d="M-120,620 C260,450 520,650 900,540 C1280,430 1450,250 1780,330" stroke="url(#lineA)" stroke-width="1.6" opacity=".4"/>
+  </g>
+
+  <!-- luminous arcs -->
+  <g fill="none" filter="url(#soft)" opacity=".85">
+    <path d="M560,260 C820,180 1060,300 1160,500 C1240,660 1200,820 1080,980" stroke="#99f6e4" stroke-width="5" opacity=".5"/>
+    <path d="M680,210 C920,160 1150,300 1240,470" stroke="#ecfeff" stroke-width="2.4" opacity=".7"/>
+    <path d="M1400,180 C1540,300 1600,460 1540,620" stroke="#a3e635" stroke-width="3" opacity=".3"/>
+  </g>
+
+  <!-- fireflies / light specks -->
+  <g fill="#ccfbf1" filter="url(#tiny)">
+    <circle cx="760" cy="340" r="2" opacity=".7"/>
+    <circle cx="980" cy="250" r="1.4" opacity=".5"/>
+    <circle cx="1240" cy="360" r="1.8" opacity=".6"/>
+    <circle cx="1420" cy="300" r="1.2" opacity=".45"/>
+    <circle cx="1580" cy="450" r="1.6" opacity=".5"/>
+    <circle cx="690" cy="520" r="1.3" opacity=".4"/>
+    <circle cx="1520" cy="760" r="2" opacity=".35"/>
+    <circle cx="1050" cy="650" r="1.2" opacity=".45"/>
+  </g>
+
+  <ellipse cx="1220" cy="620" rx="380" ry="250" fill="#5eead4" opacity=".07" filter="url(#soft2)"/>
+
+  <rect width="1920" height="1080" fill="url(#vignette)"/>
+</svg>

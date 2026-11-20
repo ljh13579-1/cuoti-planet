@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light" data-wallpaper="bloom">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Windows 11 · 网页桌面</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/desktop.css">
+  <link rel="stylesheet" href="css/apps.css">
+</head>
+<body>
+  <div id="screen" class="screen">
+    <div id="wallpaper" class="wallpaper" aria-hidden="true">
+      <div class="wp-layer" id="wp-layer-a"></div>
+      <div class="wp-layer" id="wp-layer-b"></div>
+      <div class="wp-tint"></div>
+    </div>
+
+    <div id="desktop" class="desktop">
+      <div id="desktop-icons" class="desktop-icons"></div>
+      <div id="windows-layer" class="windows-layer"></div>
+      <div id="snap-preview" class="snap-preview"></div>
+      <div id="taskview" class="taskview" hidden>
+        <div class="taskview-inner" id="taskview-inner"></div>
+      </div>
+    </div>
+
+    <div id="taskbar" class="taskbar" role="toolbar" aria-label="任务栏">
+      <div class="taskbar-center" id="taskbar-center">
+        <button class="tb-btn tb-start" id="tb-start" data-flyout-trigger="start" aria-label="开始" title="开始">
+          <span class="win-logo"><i></i><i></i><i></i><i></i></span>
+        </button>
+        <button class="tb-btn" id="tb-search" data-flyout-trigger="search" aria-label="搜索" title="搜索">
+          <span class="tb-icon-slot" data-icon="ui-search"></span>
+        </button>
+        <button class="tb-btn" id="tb-taskview" aria-label="任务视图" title="任务视图">
+          <span class="tb-icon-slot" data-icon="ui-taskview"></span>
+        </button>
+        <button class="tb-btn" id="tb-widgets" data-flyout-trigger="widgets" aria-label="小组件" title="小组件">
+          <span class="tb-icon-slot" data-icon="ui-widgets"></span>
+        </button>
+        <span class="tb-divider" aria-hidden="true"></span>
+        <div class="tb-apps" id="tb-apps"></div>
+      </div>
+
+      <div class="tray" id="tray">
+        <button class="tray-weather" id="tb-weather" data-flyout-trigger="widgets" title="天气">
+          <span class="weather-mini" id="weather-mini"></span>
+          <span id="weather-mini-temp">22°</span>
+        </button>
+        <button class="tray-quick" id="tb-quick" data-flyout-trigger="quick" title="网络、声音和电池">
+          <span data-icon="ui-wifi"></span>
+          <span data-icon="ui-volume"></span>
+          <span data-icon="ui-battery"></span>
+        </button>
+        <button class="tray-clock" id="tb-clock" data-flyout-trigger="notif" title="日期和时间">
+          <span class="tray-time" id="tray-time">00:00</span>
+          <span class="tray-date" id="tray-date">0000/00/00</span>
+        </button>
+        <button class="tray-bell" id="tb-notif" data-flyout-trigger="notif" aria-label="通知" title="通知">
+          <span data-icon="ui-bell"></span>
+          <span class="notif-dot" id="notif-dot" hidden></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="flyouts" id="flyouts">
+      <div class="flyout start-menu" id="flyout-start" role="dialog" aria-label="开始菜单" hidden></div>
+      <div class="flyout search-panel" id="flyout-search" role="dialog" aria-label="搜索" hidden></div>
+      <div class="flyout widgets-panel" id="flyout-widgets" role="dialog" aria-label="小组件" hidden></div>
+      <div class="flyout quick-panel" id="flyout-quick" role="dialog" aria-label="快速设置" hidden></div>
+      <div class="flyout notif-panel" id="flyout-notif" role="dialog" aria-label="通知和日历" hidden></div>
+    </div>
+
+    <div id="snap-flyout" class="snap-flyout" hidden></div>
+    <div id="context-layer" class="context-layer"></div>
+    <div id="toast-layer" class="toast-layer" aria-live="polite"></div>
+
+    <div id="brightness-overlay" class="brightness-overlay" aria-hidden="true"></div>
+    <div id="night-overlay" class="night-overlay" aria-hidden="true"></div>
+  </div>
+
+  <div id="lock-screen" class="lock-screen is-locked">
+    <div class="lock-bg" id="lock-bg"></div>
+    <div class="lock-shade"></div>
+
+    <div class="lock-view" id="lock-view">
+      <div class="lock-time" id="lock-time">00:00</div>
+      <div class="lock-date" id="lock-date">正在加载日期</div>
+      <div class="lock-weather" id="lock-weather">
+        <span data-icon="ui-sun"></span>
+        <span>北京 · 晴 22°</span>
+      </div>
+      <div class="lock-hint" id="lock-hint">
+        <span data-icon="ui-chevron-up"></span>
+        <span>点击任意位置或按任意键继续</span>
+      </div>
+    </div>
+
+    <div class="signin-view" id="signin-view">
+      <div class="signin-card">
+        <div class="signin-avatar" id="signin-avatar">A</div>
+        <div class="signin-name" id="signin-name">Aki</div>
+        <form class="signin-form" id="signin-form" autocomplete="off">
+          <div class="signin-input-wrap">
+            <input id="signin-password" type="password" placeholder="PIN 或密码" autocomplete="off" spellcheck="false" aria-label="PIN 或密码">
+            <button type="submit" class="signin-go" id="signin-go" aria-label="登录">
+              <span data-icon="ui-arrow-right"></span>
+            </button>
+          </div>
+          <div class="signin-hint">演示登录 · 直接按 Enter 即可进入桌面</div>
+        </form>
+      </div>
+      <div class="lock-bottom">
+        <button class="lock-btn" id="lock-power" aria-label="电源选项" title="电源选项">
+          <span data-icon="ui-power"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="boot-screen" class="boot-screen" hidden>
+    <div class="boot-content">
+      <span class="boot-logo" id="boot-logo"></span>
+      <div class="boot-spinner" aria-hidden="true"></div>
+      <p id="boot-text">正在重启…</p>
+    </div>
+  </div>
+
+  <div id="shutdown-screen" class="shutdown-screen" hidden>
+    <div class="shutdown-content">
+      <button class="shutdown-power" id="shutdown-power" aria-label="开机">
+        <span data-icon="ui-power"></span>
+      </button>
+      <h2>已关机</h2>
+      <p>点击电源按钮重新开机</p>
+    </div>
+  </div>
+
+  <script src="js/icons.js" defer></script>
+  <script src="js/data.js" defer></script>
+  <script src="js/wm.js" defer></script>
+  <script src="js/apps.js" defer></script>
+  <script src="js/ui.js" defer></script>
+  <script src="js/main.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>QA viewport</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #111; overflow: hidden; }
+  iframe { display: block; width: 1366px; height: 768px; border: 0; }
+</style>
+</head>
+<body>
+<iframe id="qa-frame" src="./"></iframe>
+<script>
+  const params = new URLSearchParams(location.search);
+  const mode = params.get('mode') || 'desktop';
+  const frame = document.getElementById('qa-frame');
+  frame.addEventListener('load', () => {
+    const w = frame.contentWindow;
+    const d = frame.contentDocument;
+    const wait = ms => new Promise(r => setTimeout(r, ms));
+    const ready = async () => {
+      for (let i = 0; i < 60 && !(w.Win11 && w.Win11.fs); i++) await wait(50);
+      if (mode === 'lock') return;
+      d.getElementById('lock-screen').click();
+      await wait(350);
+      d.getElementById('signin-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      await wait(500);
+      if (mode === 'start') {
+        d.querySelector('[data-flyout-trigger="start"]').click();
+      } else if (mode === 'search') {
+        d.querySelector('[data-flyout-trigger="search"]').click();
+        await wait(200);
+        const input = d.querySelector('#flyout-search input');
+        if (input) {
+          input.value = '计';
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      } else if (mode === 'widgets') {
+        d.querySelector('[data-flyout-trigger="widgets"]').click();
+      } else if (mode === 'settings') {
+        w.Win11.ui.openApp('settings');
+      } else if (mode === 'apps') {
+        ['explorer', 'notepad', 'calculator', 'terminal', 'photos', 'weather', 'recycle'].forEach((id, i) => {
+          const win = w.Win11.WM.open(id);
+          const x = 30 + (i % 4) * 60;
+          const y = 24 + (i % 4) * 50;
+          if (win) w.Win11.WM.close(win);
+        });
+        w.Win11.WM.open('settings');
+        await wait(300);
+        const win = w.Win11.WM.open('explorer');
+        if (win && win.setRect) win.setRect({ x: 60, y: 28, w: 760, h: 560 });
+      } else if (mode === 'dark') {
+        w.Win11.Store.set('theme', 'dark');
+      }
+    };
+    ready();
+  });
+</script>
+</body>
+</html>
